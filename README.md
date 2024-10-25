@@ -15,10 +15,10 @@
 
 | **이름**   | **역할**                           | **주요 업무**                                    |
 |------------|------------------------------------|-------------------------------------------------|
-| 김홍준     | 프로젝트 매니저                     | AI 설계 및 제작, 데이터 전처리/시각화 , 프롬프트 엔지니어링, LangChain Retriver(json), 임베딩 테스트툴 제작 |
-| 류윤선     | AI 개발자                          | DB 구축 및 Vecto Search 연구, 데이터 수집, LLM 파인튜닝, LangChain Retriver(pdf)  |
-| 박지환     | 백엔드 개발, UX 디자인             | DB 구축 및 연동, 사용자 인터페이스 개발           |
-| 이현석     | 프론트엔드 개발, UI 디자인          | 데이터 크롤링, 프론트엔드 개발, 백엔드 지원      |
+| 김홍준     | 프로젝트 매니저                     | AI 설계 및 제작, 데이터 전처리/시각화, 데이터 임베딩, 임베딩 테스트툴 제작, 프롬프트 엔지니어링, LangChain Retriver(json),  |
+| 류윤선     | AI 개발자                          | DB 구축 및 Vector Search 테스트, 데이터 임베딩, 데이터 수집, LLM 파인튜닝, LangChain Retriver(pdf)  |
+| 박지환     | 백엔드 개발, UX 디자인             | 프론트엔드 및 백엔드 개발, ngrok 활용 모바일 구동     |
+| 이현석     | 프론트엔드 개발, UI 디자인          | 데이터 크롤링, 프론트엔드 개발, ppt 제작 및 발표      |
 
 ---
 
@@ -33,6 +33,12 @@
 1. **데이터 기반의 과실비율 분석**: 교통사고 데이터를 수집하여 AI 모델이 과실비율을 예측.
 2. **분쟁 최소화**: 명확한 과실비율 제공으로 분쟁을 줄이고, 시간과 비용 절감.
 3. **사용자 친화적 인터페이스**: 직관적인 UI/UX를 통해 사용자에게 편리한 경험 제공.
+
+---
+
+## 시스템 아키텍처
+![Background Image](https://github.com/wjsghk1267/2nd_team_project/blob/main/wallpaper/achitecher.png?raw=true)
+
 
 ---
 
@@ -65,26 +71,15 @@
 ## 최종 결과물
 
 - **AI 과실비율 예측 시스템**: 교통사고 과실비율을 예측하고 분쟁을 최소화할 수 있는 AI 시스템 완성.
-- **시연 영상**: [시연 영상 링크](https://drive.google.com/file/d/1yp2KvddcPthsn0Y7itaHEFay7ueVpCR-/view?usp=drive_link)
-
+- **시연 영상**: [시연 영상 링크](https://github.com/wjsghk1267/2nd_team_project/blob/main/wallpaper/test_1.mp4)
+- 
 ---
 
 ## 기술 스택
 
 - **프론트엔드**: HTML, CSS, JavaScript
-- **백엔드**: Flask, MongoDB, Jinja2
+- **백엔드**: Flask, MongoDB Atlas
 - **데이터 분석**: Python, Pandas, Matplotlib
-- **AI 모델**: OpenAI API, BGE-M3 임베딩 모델
-- **배포**: AWS, Heroku
+- **AI 모델**: OpenAI API, BGE-M3(임베딩 모델), whisper-1
 
 ---
-
-## 기여 방법
-
-이 프로젝트에 기여하고 싶으시면 `issues` 탭에서 제안 사항을 남기거나 `pull request`를 보내주세요. 여러분의 참여를 환영합니다!
-
----
-
-## 라이선스
-
-이 프로젝트는 MIT 라이선스에 따라 배포됩니다.
