@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비디오 파일 업로드</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        label:hover {
+            background-color: #0056b3;
+        }
+        #upload-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            /* display: none;  처음에는 감춰둠 */
+        }
+        #upload-btn:hover {
+            background-color: #218838;
+        }
+        #file-name {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>비디오 파일 업로드</h1>
+        <form id="upload-form" enctype="multipart/form-data">
+            <input type="file" id="video-file" accept="video/*">
+            <label for="video-file">비디오 파일 선택</label>
+            <div id="file-name">선택된 파일 없음</div>
+            <button type="button" id="upload-btn">업로드</button>
+        </form>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('video-file');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadButton = document.getElementById('upload-btn');
+
+        // 파일이 선택되면 파일 이름 표시 및 업로드 버튼 활성화
+        fileInput.addEventListener('change', function() {
+            const file = fileInput.files[0];
+            if (file) {
+                fileNameDisplay.textContent = `선택된 파일: ${file.name}`;
+                uploadButton.style.display = 'inline-block';
+            } else {
+                fileNameDisplay.textContent = '선택된 파일 없음';
+                uploadButton.style.display = 'none';
+            }
+        });
+
+        // 업로드 버튼 클릭 시 파일 업로드
+        uploadButton.addEventListener('click', function() {
+            const formData = new FormData();
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('비디오 파일을 선택하세요!');
+                return;
+            }
+
+            formData.append('video', file);
+
+            fetch('/ask', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('파일 업로드 성공! 서버 응답: ' + data.answer);
+            })
+            .catch(error => {
+                alert('파일 업로드 실패: ' + error);
+            });
+        });
+    </script>
+</body>
+</html>

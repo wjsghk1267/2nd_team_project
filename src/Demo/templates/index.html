@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교통사고 법률 상담 챗봇</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #333;
+        }
+        body {
+            min-width: 393px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 0px 0px 0px 0px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            height: calc(100vh);
+            position: fixed;
+            left: 0;
+            transition: transform 0.2s ease;
+            top:-7px;
+        }
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+        .sidebar h2 {
+            padding-top: 50px; /* 상단에 여백 추가 */
+            font-size: 1.5em;
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            position: relative;
+            padding: 30px 10px 10px 10px;
+            margin-bottom: 10px;
+            background-color: #f4f4f4;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .sidebar ul li:hover {
+            background-color: #007BFF;
+            color: #fff;
+        }
+        .search-date {
+            font-size: 0.8em;
+            color: #666;
+            position: absolute;
+            top: 5px;
+            left: 10px;
+        }
+        .delete-log {
+            background-color: transparent;
+            border: none;
+            color: #FF0000;
+            cursor: pointer;
+            font-size: 1.2em;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .content {
+            flex: 1;
+            padding: 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease;
+        }
+        .content.shifted {
+            margin-left: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: calc(110vh - 115px);
+            padding: 20px 0px 0px 0px;
+            top: 30px;
+        }
+        h1 {
+            font-size: 2em; 
+            color: #007BFF; 
+            text-align: center; 
+            margin: 15px 0;
+        }
+        p {
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #messages {
+            flex: 1;
+            border-top: 1px solid #ddd;
+            padding: 25px 25px 0px 25px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .message-container {
+            min-width: 393px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .message-container .icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+        .user {
+            color: #007BFF;
+        }
+        .bot {
+            color: #28a745;
+        }
+        form {
+            display: flex;
+            padding: 10px;
+            background-color: #f4f4f9;
+        }
+        #input {
+            width: 150px; /* 원하는 가로 크기 설정 */
+            flex: 1;
+            min-width: 100px;
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 1em;
+            outline: none;
+        }
+        #input:focus {
+            border-color: #007BFF;
+        }
+        #submit, #print {
+            padding: 10px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1em;
+            cursor: pointer;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: #007BFF;
+        }
+        #submit:hover {
+            background: #0056b3;
+        }
+        #print {
+            background: #28a745;
+        }
+        #print:hover {
+            background: #218838;
+        }
+        #upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1em;
+            cursor: pointer;
+            margin-right: 10px;
+            color: #fff;
+            background: #007BFF;
+        }
+        #upload-label:hover {
+            background: #0056b3;
+        }
+        #upload {
+            display: none;
+        }
+        #new-chat {
+            display: inline-block;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            margin-left: 112px;
+            margin-top:15px;
+        }
+        #clear-history {
+            margin-top: 10px;
+            background-color: #FF0000;
+            color: #FFF;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            margin-left: 33px; /* 왼쪽 여백을 추가하여 오른쪽으로 이동 */
+        }
+        #clear-history:hover {
+            background-color: #CC0000;
+        }
+        #sidebar-toggle {
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 3h24v2h-24v-2zm0 7h24v2h-24v-2zm0 7h24v2h-24v-2z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+            position: fixed;
+            top: 18px;
+            left: calc(100% - 143px); /* 예시: 오른쪽에서 310px 떨어진 위치로 조정 */
+        }
+        #login-button {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        
+        #login-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 아이폰 14 프로에 맞춘 미디어 쿼리 */
+        @media only screen and (min-width: 393px) and (max-width: 393px) and (orientation: portrait) {
+            .sidebar {
+                width: 200px;
+            }
+            .content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+        }
+
+        @media only screen and (min-width: 852px) and (max-width: 852px) and (orientation: landscape) {
+            .sidebar {
+                width: 200px;
+            }
+            .content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="login-button" onclick="window.location.href='/login_main'">Login</button>
+
+    <button id="sidebar-toggle"></button>
+    
+    <div class="sidebar" id="sidebar">
+        <h2>검색 기록</h2>
+        <ul id="search-history"></ul>
+        <div id="new-chat" title="New Chat"><img src="static/image/plus-circle.png" alt="PNG Image"></div>
+    </div>
+    <div class="content" id="content">
+        <div class="container">
+            <h1>교통사고 법률 상담 챗봇</h1>
+            <p>안녕하세요! 교통사고에 대해 법률적 조언을 드릴 수 있는 변호사 챗봇입니다.</p>
+            <div id="chat">
+                <div id="messages"></div>
+                <form id="form" enctype="multipart/form-data">
+                    <input type="text" id="input" placeholder="사고 상황이나 질문을 입력하세요" required="">
+                    <button type="submit" id="submit"><i class="fas fa-paper-plane"></i></button>
+                    <button type="button" id="print"><i class="fas fa-print"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        let chatLog = []; 
+
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('closed');
+            content.classList.toggle('shifted');
+        });
+
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('input');
+            const messagesDiv = document.getElementById('messages');
+
+            const question = input.value;
+            input.value = '';
+            messagesDiv.innerHTML += '<div class="message-container"><i class="fas fa-user icon user"></i><div class="user"> ' + question + '</div></div>';
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'question=' + encodeURIComponent(question)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const formattedAnswer = formatAnswer(data.answer);
+                messagesDiv.innerHTML += '<div class="message-container"><i class="fas fa-robot icon bot"></i><div class="bot">' + formattedAnswer + '</div></div>';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                chatLog.push({ question: question.slice(0, 10) });
+            })
+            .catch(error => {
+                messagesDiv.innerHTML += '<div class="message-container"><i class="fas fa-exclamation-triangle icon bot"></i><div class="bot">오류가 발생했습니다: ' + error + '</div></div>';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        });
+
+        document.getElementById('new-chat').addEventListener('click', function() {
+            saveChatLog();
+            location.reload();
+        });
+
+        document.getElementById('print').addEventListener('click', function() {
+            window.print();
+        });
+
+        function saveChatLog() {
+            if (chatLog.length > 0) {
+                const timestamp = new Date().toISOString();
+                let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+                searchHistory.push({ log: chatLog, timestamp });
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                chatLog = [];
+                updateSearchHistory();
+            }
+        }
+
+        function formatAnswer(answer) {
+            answer = answer.replace(/\n\s*\n/g, '\n');
+            let listHTML = answer
+                .replace(/(\d+\.\s+)/g, '<li>')
+                .replace(/\n(\d+\.\s+)/g, '</li>\n<li>')
+                .replace(/\n<\/li>\n<li>/g, '</li>\n<li>')
+                .replace(/<\/li>\n<\/li>/g, '</li>\n</li>')
+                .replace(/\n/g, '<br>');
+            listHTML = listHTML
+                .replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+            return listHTML;
+        }
+
+        function updateSearchHistory() {
+            const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            const searchHistoryList = document.getElementById('search-history');
+            searchHistoryList.innerHTML = '';
+
+            searchHistory.forEach(function(record, index) {
+                const date = new Date(record.timestamp);
+                const formattedDate = isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString();
+
+                let li = document.createElement('li');
+                li.innerHTML = '<div class="search-date">' + formattedDate + '</div>' +
+                               record.log.map(entry => `<div><strong>${entry.question}</strong></div>`).join('');  
+                li.classList.add('search-item');
+
+                let deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-log');
+                deleteButton.innerHTML = '×';
+                deleteButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    deleteLog(index);
+                });
+
+                li.appendChild(deleteButton);
+                searchHistoryList.appendChild(li);
+            });
+        }
+
+        function deleteLog(index) {
+            let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            searchHistory.splice(index, 1);
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            updateSearchHistory();
+        }
+
+        function performSearch(log) {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+
+            log.forEach(entry => {
+                messagesDiv.innerHTML += '<div class="message-container"><i class="fas fa-user icon user"></i><div class="user">' + entry.question + '</div></div>';
+            });
+
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        window.addEventListener('beforeunload', saveChatLog);
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSearchHistory();
+        });
+    </script>
+</body>
+</html>
